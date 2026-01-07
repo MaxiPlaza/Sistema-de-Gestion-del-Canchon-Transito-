@@ -1,0 +1,25 @@
+SISTEMA DE TRÁNSITO - VERSIÓN PORTABLE
+========================================
+
+Instrucciones de Instalación y Uso:
+
+1. Requisitos Previos:
+   - Asegúrese de tener instalado Node.js en la computadora (https://nodejs.org/).
+   - Eso es todo. No necesita instalar MySQL ni XAMPP.
+
+2. Iniciar el Sistema:
+   - Simplemente haga doble click en el archivo "IniciarSistema.bat" que se encuentra en esta carpeta.
+   - La primera vez que lo ejecute, instalará automáticamente las librerías necesarias (esto puede tardar unos minutos).
+   - Luego, se abrirá automáticamente una ventana negra (el servidor) y su navegador web con el sistema listo para usar.
+
+3. Datos de Acceso por Defecto:
+   - Usuario: admin
+   - Clave: admin123 (o la que tenía configurada previamente)
+
+4. Notas Importantes:
+   - No cierre la ventana negra mientras esté usando el sistema.
+   - La base de datos se guarda en el archivo "transit_system.sqlite" en esta misma carpeta.
+   - Puede copiar toda la carpeta "sistema-transito" a otra computadora y funcionará igual (siempre que tenga Node.js instalado).
+
+Soporte:
+Si tiene problemas, contacte al desarrollador.

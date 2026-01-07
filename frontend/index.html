@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Tránsito</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <i class="fas fa-traffic-light"></i>
+                <h1>Sistema de Tránsito</h1>
+                <p>Ingrese sus credenciales</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Usuario</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> Contraseña</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
+            </form>
+            <div id="loginMessage" class="message"></div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard" class="screen">
+        <header class="header">
+            <div class="header-left">
+                <i class="fas fa-traffic-light"></i>
+                <h1>Sistema de Tránsito</h1>
+            </div>
+            <div class="header-right">
+                <span id="userWelcome">Bienvenido, Admin</span>
+                <button id="logoutBtn" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </header>
+
+        <nav class="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item active" data-tab="dashboard-tab">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </li>
+                <li class="nav-item" data-tab="vehiculos-tab">
+                    <i class="fas fa-car"></i> Vehículos
+                </li>
+                <li class="nav-item" data-tab="propietarios-tab">
+                    <i class="fas fa-user-tie"></i> Propietarios
+                </li>
+                <li class="nav-item" data-tab="infracciones-tab">
+                    <i class="fas fa-clipboard-list"></i> Infracciones
+                </li>
+                <li class="nav-item" data-tab="salidas-tab">
+                    <i class="fas fa-truck-loading"></i> Salidas de Vehículos
+                </li>
+                <li class="nav-item" data-tab="reportes-tab">
+                    <i class="fas fa-chart-bar"></i> Reportes
+                </li>
+                <li class="nav-item" data-tab="historial-tab">
+                    <i class="fas fa-history"></i> Historial
+                </li>
+                <li class="nav-item admin-only" data-tab="admin-tab">
+                    <i class="fas fa-cog"></i> Administración
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active">
+                <div class="tab-header">
+                    <h2>Dashboard Principal</h2>
+                    <button id="actualizarDashboardBtn" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
+
+                <!-- Estadísticas Principales -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-car"></i>
+                        <div class="stat-info">
+                            <h3 id="totalVehiculos">0</h3>
+                            <p>Vehículos Registrados</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-user-tie"></i>
+                        <div class="stat-info">
+                            <h3 id="totalPropietarios">0</h3>
+                            <p>Propietarios</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clipboard-list"></i>
+                        <div class="stat-info">
+                            <h3 id="totalInfracciones">0</h3>
+                            <p>Total Infracciones</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <div class="stat-info">
+                            <h3 id="activa">0</h3>
+                            <p>Activas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="stat-info">
+                            <h3 id="resuelta">0</h3>
+                            <p>Resueltas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-info">
+                            <h3 id="totalUsuarios">0</h3>
+                            <p>Usuarios Activos</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-day"></i>
+                        <div class="stat-info">
+                            <h3 id="infraccionesHoy">0</h3>
+                            <p>Infracciones Hoy</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos y Métricas -->
+                <div class="dashboard-grid">
+                    <!-- Infracciones por Tipo de Vehículo -->
+                    <div class="metric-card">
+                        <h3><i class="fas fa-chart-pie"></i> Infracciones por Tipo de Vehículo</h3>
+                        <div id="chartTipoVehiculo" class="chart-container">
+                            <div class="chart-placeholder">
+                                <i class="fas fa-spinner fa-spin"></i> Cargando gráfico...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Infracciones por Estado -->
+                    <div class="metric-card">
+                        <h3><i class="fas fa-chart-bar"></i> Infracciones por Estado</h3>
+                        <div id="chartEstadoInfracciones" class="chart-container">
+                            <div class="chart-placeholder">
+                                <i class="fas fa-spinner fa-spin"></i> Cargando gráfico...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tendencia de Infracciones (7 días) -->
+                    <div class="metric-card">
+                        <h3><i class="fas fa-chart-line"></i> Tendencia (7 días)</h3>
+                        <div id="chartTendencia" class="chart-container">
+                            <div class="chart-placeholder">
+                                <i class="fas fa-spinner fa-spin"></i> Cargando gráfico...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Agentes -->
+                    <div class="metric-card">
+                        <h3><i class="fas fa-user-shield"></i> Agentes Más Activos</h3>
+                        <div id="listaAgentes" class="list-container">
+                            <div class="loading-placeholder">
+                                <i class="fas fa-spinner fa-spin"></i> Cargando...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actividad Reciente -->
+                <div class="dashboard-section">
+                    <h3><i class="fas fa-history"></i> Actividad Reciente</h3>
+
+                    <div class="actividad-grid">
+                        <!-- Infracciones Recientes -->
+                        <div class="actividad-card">
+                            <h4><i class="fas fa-clipboard-list"></i> Últimas Infracciones</h4>
+                            <div id="listaInfraccionesRecientes" class="actividad-list">
+                                <div class="loading-placeholder">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando infracciones...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vehículos Recientes -->
+                        <div class="actividad-card">
+                            <h4><i class="fas fa-car"></i> Vehículos Registrados Recientemente</h4>
+                            <div id="listaVehiculosRecientes" class="actividad-list">
+                                <div class="loading-placeholder">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando vehículos...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vehículos con Más Infracciones -->
+                        <div class="actividad-card">
+                            <h4><i class="fas fa-car-crash"></i> Vehículos con Más Infracciones</h4>
+                            <div id="listaVehiculosProblematicos" class="actividad-list">
+                                <div class="loading-placeholder">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehículos Tab -->
+            <div id="vehiculos-tab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Gestión de Vehículos</h2>
+                    <button id="nuevoVehiculoBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Vehículo
+                    </button>
+                </div>
+
+                <!-- Filtros de búsqueda -->
+                <div class="filters-container">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="filterPatente">Patente:</label>
+                            <input type="text" id="filterPatente" placeholder="Buscar por patente...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterMarca">Marca:</label>
+                            <input type="text" id="filterMarca" placeholder="Buscar por marca...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterPropietario">Propietario:</label>
+                            <input type="text" id="filterPropietario" placeholder="Buscar por propietario...">
+                        </div>
+                        <button id="buscarVehiculosBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button id="limpiarFiltrosVehiculosBtn" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="vehiculosTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Patente</th>
+                                <th>Tipo</th>
+                                <th>Marca</th>
+                                <th>Modelo</th>
+                                <th>Color</th>
+                                <th>N° Motor</th>
+                                <th>N° Chasis</th>
+                                <th>Propietario</th>
+                                <th>Documentación</th>
+                                <th>Seguro</th>
+                                <th>Fecha Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vehiculosTableBody">
+                            <!-- Los vehículos se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Propietarios Tab -->
+            <div id="propietarios-tab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Gestión de Propietarios</h2>
+                    <button id="nuevoPropietarioBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Propietario
+                    </button>
+                </div>
+
+                <!-- Filtros de búsqueda -->
+                <div class="filters-container">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="filterDNI">DNI:</label>
+                            <input type="text" id="filterDNI" placeholder="Buscar por DNI...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterNombre">Nombre:</label>
+                            <input type="text" id="filterNombre" placeholder="Buscar por nombre...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterCarnet">Carnet Conducir:</label>
+                            <input type="text" id="filterCarnet" placeholder="Buscar por carnet...">
+                        </div>
+                        <button id="buscarPropietariosBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button id="limpiarFiltrosPropietariosBtn" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="propietariosTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>DNI</th>
+                                <th>Nombre</th>
+                                <th>Carnet Conducir</th>
+                                <th>Teléfono</th>
+                                <th>Email</th>
+                                <th>Vehículos</th>
+                                <th>Fecha Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="propietariosTableBody">
+                            <!-- Los propietarios se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="infracciones-tab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Gestión de Infracciones</h2>
+                    <div>
+                        <button id="importarExcelBtn" class="btn btn-success" style="margin-right: 10px;">
+                            <i class="fas fa-file-excel"></i> Importar Excel
+                        </button>
+                        <button id="nuevaInfraccionBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nueva Infracción
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estadísticas rápidas -->
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <i class="fas fa-clipboard-list"></i>
+                        <div class="stat-info">
+                            <h3 id="totalInfracciones">0</h3>
+                            <p>Total Infracciones</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <div class="stat-info">
+                            <h3 id="activa">0</h3>
+                            <p>Activas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="stat-info">
+                            <h3 id="resuelta">0</h3>
+                            <p>Resueltas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros de búsqueda -->
+                <div class="filters-container">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="filterNumeroActa">N° Acta:</label>
+                            <input type="text" id="filterNumeroActa" placeholder="Buscar por acta...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterPatenteInfraccion">Patente:</label>
+                            <input type="text" id="filterPatenteInfraccion" placeholder="Buscar por patente...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterConductorDNI">DNI Conductor:</label>
+                            <input type="text" id="filterConductorDNI" placeholder="Buscar por DNI...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterEstado">Estado:</label>
+                            <select id="filterEstado">
+                                <option value="">Todos</option>
+                                <option value="activa">Activa</option>
+                                <option value="resuelta">Resuelta</option>
+                                <option value="anulada">Anulada</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="filterFechaDesde">Fecha Desde:</label>
+                            <input type="date" id="filterFechaDesde">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterFechaHasta">Fecha Hasta:</label>
+                            <input type="date" id="filterFechaHasta">
+                        </div>
+                        <button id="buscarInfraccionesBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button id="limpiarFiltrosInfraccionesBtn" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="infraccionesTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>N° Acta</th>
+                                <th>Fecha Infracción</th>
+                                <th>Vehículo</th>
+                                <th>Conductor</th>
+                                <th>DNI Conductor</th>
+                                <th>Motivo</th>
+                                <th>Lugar</th>
+                                <th>Estado</th>
+                                <th>Inspector</th>
+                                <th>Artículo</th>
+                                <th>Ordenanza</th>
+                                <th>Grúa/Móvil</th>
+                                <th>Agente</th>
+                                <th>Fecha Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="infraccionesTableBody">
+                            <!-- Las infracciones se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Salidas de Vehículos Tab -->
+            <div id="salidas-tab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Salidas de Vehículos</h2>
+                    <button id="nuevaSalidaBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Registrar Salida
+                    </button>
+                </div>
+
+                <!-- Filtros de búsqueda -->
+                <div class="filters-container">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="filterSalidaPatente">Patente:</label>
+                            <input type="text" id="filterSalidaPatente" placeholder="Buscar por patente...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterSalidaDNI">DNI:</label>
+                            <input type="text" id="filterSalidaDNI" placeholder="DNI de quien retira...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterSalidaFechaDesde">Desde:</label>
+                            <input type="date" id="filterSalidaFechaDesde">
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterSalidaFechaHasta">Hasta:</label>
+                            <input type="date" id="filterSalidaFechaHasta">
+                        </div>
+                        <button id="buscarSalidasBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button id="limpiarFiltrosSalidasBtn" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="salidasTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha Salida</th>
+                                <th>Patente</th>
+                                <th>Vehículo</th>
+                                <th>N° Acta</th>
+                                <th>Persona que Retira</th>
+                                <th>DNI</th>
+                                <th>Teléfono</th>
+                                <th>Autorizado por</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salidasTableBody">
+                            <!-- Las salidas se cargarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="reportes-tab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Reportes y Consultas</h2>
+                    <button id="generarReporteGeneralBtn" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Actualizar Reporte General
+                    </button>
+                </div>
+
+                <!-- Reporte General -->
+                <div class="reporte-section">
+                    <h3><i class="fas fa-chart-line"></i> Reporte General del Sistema</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="fas fa-car"></i>
+                            <div class="stat-info">
+                                <h3 id="totalVehiculosReporte">0</h3>
+                                <p>Vehículos Registrados</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-user-tie"></i>
+                            <div class="stat-info">
+                                <h3 id="totalPropietariosReporte">0</h3>
+                                <p>Propietarios</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-clipboard-list"></i>
+                            <div class="stat-info">
+                                <h3 id="totalInfraccionesReporte">0</h3>
+                                <p>Total Infracciones</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-users"></i>
+                            <div class="stat-info">
+                                <h3 id="totalUsuariosReporte">0</h3>
+                                <p>Usuarios Activos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consultas Rápidas -->
+                <div class="reporte-section">
+                    <h3><i class="fas fa-search"></i> Consultas Rápidas</h3>
+
+                    <div class="consultas-grid">
+                        <!-- Consulta por Patente -->
+                        <div class="consulta-card">
+                            <h4><i class="fas fa-car"></i> Consulta por Patente</h4>
+                            <div class="consulta-form">
+                                <input type="text" id="consultaPatente" placeholder="Ej: ABC123" maxlength="10">
+                                <button id="buscarPorPatenteBtn" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                            <div id="resultadoPatente" class="consulta-resultado"></div>
+                        </div>
+
+                        <!-- Consulta por Acta -->
+                        <div class="consulta-card">
+                            <h4><i class="fas fa-file-alt"></i> Consulta por N° de Acta</h4>
+                            <div class="consulta-form">
+                                <input type="text" id="consultaActa" placeholder="Ej: ACTA-001">
+                                <button id="buscarPorActaBtn" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                            <div id="resultadoActa" class="consulta-resultado"></div>
+                        </div>
+
+                        <!-- Consulta por DNI -->
+                        <div class="consulta-card">
+                            <h4><i class="fas fa-id-card"></i> Consulta por DNI</h4>
+                            <div class="consulta-form">
+                                <input type="text" id="consultaDNI" placeholder="Ej: 12345678" maxlength="20">
+                                <button id="buscarPorDNIBtn" class="btn btn-primary">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                            <div id="resultadoDNI" class="consulta-resultado"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reportes Avanzados -->
+                <div class="reporte-section">
+                    <h3><i class="fas fa-chart-bar"></i> Reportes Avanzados</h3>
+
+                    <!-- Reporte por Fecha -->
+                    <div class="reporte-avanzado">
+                        <h4>Reporte de Infracciones por Fecha</h4>
+                        <div class="filtros-avanzados">
+                            <div class="filter-row">
+                                <div class="filter-group">
+                                    <label for="reporteFechaDesde">Fecha Desde:</label>
+                                    <input type="date" id="reporteFechaDesde">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="reporteFechaHasta">Fecha Hasta:</label>
+                                    <input type="date" id="reporteFechaHasta">
+                                </div>
+                                <div class="filter-group">
+                                    <label for="reporteAgrupacion">Agrupación:</label>
+                                    <select id="reporteAgrupacion">
+                                        <option value="dia">Por Día</option>
+                                        <option value="semana">Por Semana</option>
+                                        <option value="mes">Por Mes</option>
+                                    </select>
+                                </div>
+                                <button id="generarReporteFechaBtn" class="btn btn-primary">
+                                    <i class="fas fa-chart-bar"></i> Generar Reporte
+                                </button>
+                            </div>
+                        </div>
+                        <div id="resultadoReporteFecha" class="reporte-resultado"></div>
+                    </div>
+
+                    <!-- Vehículos con más infracciones -->
+                    <div class="reporte-avanzado">
+                        <h4>Vehículos con Más Infracciones</h4>
+                        <div class="filtros-avanzados">
+                            <div class="filter-row">
+                                <div class="filter-group">
+                                    <label for="reporteLimite">Top:</label>
+                                    <select id="reporteLimite">
+                                        <option value="5">Top 5</option>
+                                        <option value="10" selected>Top 10</option>
+                                        <option value="20">Top 20</option>
+                                    </select>
+                                </div>
+                                <button id="generarReporteVehiculosBtn" class="btn btn-primary">
+                                    <i class="fas fa-car-crash"></i> Generar Reporte
+                                </button>
+                            </div>
+                        </div>
+                        <div id="resultadoReporteVehiculos" class="reporte-resultado"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Historial Tab -->
+            <div id="historial-tab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Historial General de Acciones</h2>
+                    <button id="actualizarHistorialBtn" class="btn btn-primary">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                </div>
+
+                <div class="filters-container">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="filterHistorialEntidad">Entidad:</label>
+                            <select id="filterHistorialEntidad">
+                                <option value="">Todas</option>
+                                <option value="vehiculo">Vehículos</option>
+                                <option value="propietario">Propietarios</option>
+                                <option value="infraccion">Infracciones</option>
+                                <option value="salida">Salidas</option>
+                                <option value="usuario">Usuarios</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="filterHistorialAccion">Acción:</label>
+                            <select id="filterHistorialAccion">
+                                <option value="">Todas</option>
+                                <option value="crear">Crear</option>
+                                <option value="modificar">Modificar</option>
+                                <option value="eliminar">Eliminar</option>
+                            </select>
+                        </div>
+                        <button id="buscarHistorialBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="historialTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Usuario</th>
+                                <th>Entidad</th>
+                                <th>Acción</th>
+                                <th>Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historialTableBody">
+                            <!-- El historial se cargará aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="admin-tab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Panel de Administración</h2>
+                    <button id="nuevoUsuarioBtn" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Nuevo Usuario
+                    </button>
+                </div>
+
+                <!-- Estadísticas de Administración -->
+                <div class="dashboard-section">
+                    <h3><i class="fas fa-chart-bar"></i> Estadísticas del Sistema</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="fas fa-users"></i>
+                            <div class="stat-info">
+                                <h3 id="totalUsuariosAdmin">0</h3>
+                                <p>Total Usuarios</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-user-check"></i>
+                            <div class="stat-info">
+                                <h3 id="usuariosActivosAdmin">0</h3>
+                                <p>Usuarios Activos</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-user-shield"></i>
+                            <div class="stat-info">
+                                <h3 id="totalAdminsAdmin">0</h3>
+                                <p>Administradores</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-user-times"></i>
+                            <div class="stat-info">
+                                <h3 id="usuariosInactivosAdmin">0</h3>
+                                <p>Usuarios Inactivos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gestión de Usuarios -->
+                <div class="dashboard-section">
+                    <h3><i class="fas fa-user-cog"></i> Gestión de Usuarios</h3>
+
+                    <div class="table-container">
+                        <table id="usuariosTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Nombre Completo</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Último Login</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usuariosTableBody">
+                                <!-- Los usuarios se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Actividad Reciente -->
+                <div class="dashboard-section">
+                    <h3><i class="fas fa-history"></i> Actividad Reciente</h3>
+                    <div class="actividad-grid">
+                        <div class="actividad-card">
+                            <h4><i class="fas fa-sign-in-alt"></i> Últimos Logins</h4>
+                            <div id="listaLoginsRecientes" class="actividad-list">
+                                <div class="loading-placeholder">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando...
+                                </div>
+                            </div>
+                        </div>
+                        <div class="actividad-card">
+                            <h4><i class="fas fa-user-check"></i> Usuarios Más Activos</h4>
+                            <div id="listaUsuariosActivos" class="actividad-list">
+                                <div class="loading-placeholder">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para nuevo vehículo -->
+    <div id="vehiculoModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3 id="modalTitle">Nuevo Vehículo</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="vehiculoForm" class="modal-form">
+                <!-- Primera fila: Datos básicos -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patente">Patente *</label>
+                        <input type="text" id="patente" name="patente" required>
+                        <small class="help-text">Ej: ABC123, CD456EF</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo_vehiculo">Tipo de Vehículo *</label>
+                        <select id="tipo_vehiculo" name="tipo_vehiculo" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="auto">Auto</option>
+                            <option value="camion">Camión</option>
+                            <option value="moto">Moto</option>
+                            <option value="bicicleta">Bicicleta</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Segunda fila: Marca, Modelo, Color -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="marca">Marca</label>
+                        <input type="text" id="marca" name="marca" placeholder="Ej: Toyota, Ford">
+                    </div>
+                    <div class="form-group">
+                        <label for="modelo">Modelo</label>
+                        <input type="text" id="modelo" name="modelo" placeholder="Ej: Corolla, Fiesta">
+                    </div>
+                    <div class="form-group">
+                        <label for="color">Color</label>
+                        <input type="text" id="color" name="color" placeholder="Ej: Rojo, Azul">
+                    </div>
+                </div>
+
+                <!-- Tercera fila: Números de identificación -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numero_motor">Número de Motor</label>
+                        <input type="text" id="numero_motor" name="numero_motor" placeholder="Número único del motor">
+                    </div>
+                    <div class="form-group">
+                        <label for="numero_chasis">Número de Chasis</label>
+                        <input type="text" id="numero_chasis" name="numero_chasis"
+                            placeholder="Número único del chasis">
+                    </div>
+                </div>
+
+                <!-- Cuarta fila: Documentación -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cedula_verde">Cédula Verde</label>
+                        <input type="text" id="cedula_verde" name="cedula_verde" placeholder="Número de cédula verde">
+                    </div>
+                    <div class="form-group">
+                        <label for="titulo_registro">Título de Registro</label>
+                        <input type="text" id="titulo_registro" name="titulo_registro" placeholder="Número de título">
+                    </div>
+                </div>
+
+                <!-- Quinta fila: Propietario -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="propietario_dni">DNI del Propietario</label>
+                        <input type="text" id="propietario_dni" name="propietario_dni"
+                            placeholder="DNI del propietario registrado">
+                        <small class="help-text">El propietario debe estar previamente registrado en el sistema</small>
+                    </div>
+                </div>
+
+                <!-- Sexta fila: Seguro -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="seguro_activo">Seguro Activo</label>
+                        <select id="seguro_activo" name="seguro_activo">
+                            <option value="false">No</option>
+                            <option value="true">Sí</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="compañia_seguro">Compañía de Seguro</label>
+                        <input type="text" id="compañia_seguro" name="compañia_seguro"
+                            placeholder="Nombre de la aseguradora">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Vehículo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Modal para ver detalles del vehículo -->
+    <div id="detalleVehiculoModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Detalles del Vehículo</h3>
+                <span class="close" data-modal="detalleVehiculoModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="detalleVehiculoContent">
+                    <!-- Los detalles se cargarán aquí -->
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal="detalleVehiculoModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación para eliminar -->
+    <div id="confirmarEliminarModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Confirmar Eliminación</h3>
+                <span class="close" data-modal="confirmarEliminarModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirmarEliminarText">¿Estás seguro de que deseas eliminar este vehículo?</p>
+                <p class="warning-text"><strong>⚠️ Esta acción no se puede deshacer.</strong></p>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal="confirmarEliminarModal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmarEliminarBtn">Sí, Eliminar</button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal para nuevo propietario -->
+    <div id="propietarioModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 id="modalPropietarioTitle">Nuevo Propietario</h3>
+                <span class="close" data-modal="propietarioModal">&times;</span>
+            </div>
+            <form id="propietarioForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dni">DNI *</label>
+                        <input type="text" id="dni" name="dni" required maxlength="20">
+                        <small class="help-text">Solo números, sin puntos ni espacios</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo *</label>
+                        <input type="text" id="nombre" name="nombre" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="carnet_conducir">Carnet de Conducir</label>
+                        <input type="text" id="carnet_conducir" name="carnet_conducir" placeholder="Ej: B123456">
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+                        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="direccion">Dirección</label>
+                    <textarea id="direccion" name="direccion" rows="3" placeholder="Dirección completa..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" placeholder="Ej: 11-1234-5678">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="ejemplo@correo.com">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-modal="propietarioModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Propietario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para detalles del propietario -->
+    <div id="detallePropietarioModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Detalles del Propietario</h3>
+                <span class="close" data-modal="detallePropietarioModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="detallePropietarioContent">
+                    <!-- Los detalles se cargarán aquí -->
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal="detallePropietarioModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <div id="infraccionModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 id="modalInfraccionTitle">Nueva Infracción</h3>
+                <span class="close" data-modal="infraccionModal">&times;</span>
+            </div>
+            <form id="infraccionForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numero_acta">Número de Acta *</label>
+                        <input type="text" id="numero_acta" name="numero_acta" required>
+                        <small class="help-text">Número único del acta de infracción</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_infraccion">Fecha de Infracción *</label>
+                        <input type="datetime-local" id="fecha_infraccion" name="fecha_infraccion" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehiculo_id">Vehículo *</label>
+                        <select id="vehiculo_id" name="vehiculo_id" required>
+                            <option value="">Seleccionar vehículo...</option>
+                        </select>
+                        <small class="help-text">Seleccione el vehículo infractor</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="lugar_infraccion">Lugar de la Infracción</label>
+                        <input type="text" id="lugar_infraccion" name="lugar_infraccion"
+                            placeholder="Ej: Av. Principal y Calle Secundaria">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="conductor_dni">DNI del Conductor</label>
+                        <input type="text" id="conductor_dni" name="conductor_dni" placeholder="DNI del conductor">
+                        <small class="help-text">Si es el propietario, se autocompletará</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="conductor_nombre">Nombre del Conductor *</label>
+                        <input type="text" id="conductor_nombre" name="conductor_nombre" required
+                            placeholder="Nombre completo del conductor">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="motivo">Motivo de la Infracción *</label>
+                    <textarea id="motivo" name="motivo" rows="4" required
+                        placeholder="Describa detalladamente la infracción cometida..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="estado">
+                            <option value="activa">Activa</option>
+                            <option value="resuelta">Resuelta</option>
+                            <option value="anulada">Anulada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Nuevos campos agregados -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre_inspector">Nombre del Inspector</label>
+                        <input type="text" id="nombre_inspector" name="nombre_inspector"
+                            placeholder="Nombre del inspector que labró el acta">
+                    </div>
+                    <div class="form-group">
+                        <label for="articulo">Artículo</label>
+                        <input type="text" id="articulo" name="articulo" placeholder="Ej: Art. 123">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ordenanza">Ordenanza</label>
+                        <input type="text" id="ordenanza" name="ordenanza"
+                            placeholder="Ej: Ordenanza Municipal 456/2023">
+                    </div>
+                    <div class="form-group">
+                        <label for="traslado_movil">Traslado Móvil</label>
+                        <input type="text" id="traslado_movil" name="traslado_movil"
+                            placeholder="Vehículo/móvil que realizó el traslado">
+                        <small class="help-text">Indicar qué vehículo trasladó</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="observaciones">Observaciones</label>
+                    <textarea id="observaciones" name="observaciones" rows="3"
+                        placeholder="Observaciones adicionales..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-modal="infraccionModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Infracción</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de infracción -->
+    <div id="detalleInfraccionModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Detalles de la Infracción</h3>
+                <span class="close" data-modal="detalleInfraccionModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="detalleInfraccionContent">
+                    <!-- Los detalles se cargarán aquí -->
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal="detalleInfraccionModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+    <div id="usuarioModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 id="modalUsuarioTitle">Nuevo Usuario</h3>
+                <span class="close" data-modal="usuarioModal">&times;</span>
+            </div>
+            <form id="usuarioForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username">Username *</label>
+                        <input type="text" id="username" name="username" required>
+                        <small class="help-text">Nombre de usuario para login</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Contraseña *</label>
+                        <input type="password" id="password" name="password" required>
+                        <small class="help-text">Mínimo 6 caracteres</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre_completo">Nombre Completo *</label>
+                        <input type="text" id="nombre_completo" name="nombre_completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="rol">Rol *</label>
+                        <select id="rol" name="rol" required>
+                            <option value="">Seleccionar rol...</option>
+                            <option value="admin">Administrador</option>
+                            <option value="usuario">Usuario</option>
+                            <option value="invitado">Invitado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="activo">Estado</label>
+                        <select id="activo" name="activo">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-modal="usuarioModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para cambiar contraseña -->
+    <div id="cambiarPasswordModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Cambiar Contraseña</h3>
+                <span class="close" data-modal="cambiarPasswordModal">&times;</span>
+            </div>
+            <form id="cambiarPasswordForm" class="modal-form">
+                <div class="form-group">
+                    <label for="nueva_password">Nueva Contraseña *</label>
+                    <input type="password" id="nueva_password" name="nueva_password" required>
+                    <small class="help-text">Mínimo 6 caracteres</small>
+                </div>
+                <div class="form-group">
+                    <label for="confirmar_password">Confirmar Contraseña *</label>
+                    <input type="password" id="confirmar_password" name="confirmar_password" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-modal="cambiarPasswordModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para registrar salida de vehículo -->
+    <div id="salidaModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 id="modalSalidaTitle">Registrar Salida de Vehículo</h3>
+                <span class="close" data-modal="salidaModal">&times;</span>
+            </div>
+            <form id="salidaForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="salida_vehiculo_id">Vehículo (Patente) *</label>
+                        <select id="salida_vehiculo_id" name="vehiculo_id" required>
+                            <option value="">Seleccionar vehículo...</option>
+                        </select>
+                        <small class="help-text">Seleccione el vehículo que sale</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="salida_infraccion_id">Infracción Asociada</label>
+                        <select id="salida_infraccion_id" name="infraccion_id">
+                            <option value="">Ninguna</option>
+                        </select>
+                        <small class="help-text">Opcional: infracción relacionada</small>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="salida_persona_retira_nombre">Nombre de quien retira *</label>
+                        <input type="text" id="salida_persona_retira_nombre" name="persona_retira_nombre" required
+                            placeholder="Nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label for="salida_persona_retira_dni">DNI *</label>
+                        <input type="text" id="salida_persona_retira_dni" name="persona_retira_dni" required
+                            placeholder="DNI sin puntos">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="salida_persona_retira_telefono">Teléfono</label>
+                        <input type="tel" id="salida_persona_retira_telefono" name="persona_retira_telefono"
+                            placeholder="Teléfono de contacto">
+                    </div>
+                    <div class="form-group">
+                        <label for="salida_fecha_salida">Fecha y Hora de Salida</label>
+                        <input type="datetime-local" id="salida_fecha_salida" name="fecha_salida">
+                        <small class="help-text">Por defecto: fecha y hora actual</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="salida_observaciones">Observaciones</label>
+                    <textarea id="salida_observaciones" name="observaciones" rows="3"
+                        placeholder="Observaciones adicionales..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" data-modal="salidaModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Registrar Salida</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de salida -->
+    <div id="detalleSalidaModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header" style="background: var(--primary); color: white;">
+                <h3>Detalles de la Salida de Vehículo</h3>
+                <span class="close" data-modal="detalleSalidaModal" style="color: white;">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="detalleSalidaContent">
+                    <!-- Los detalles se cargarán aquí -->
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal="detalleSalidaModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de salida -->
+    <div id="detalleSalidaModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header" style="background: var(--primary); color: white;">
+                <h3>Detalles de la Salida de Vehículo</h3>
+                <span class="close" data-modal="detalleSalidaModal" style="color: white;">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="detalleSalidaContent">
+                    <!-- Los detalles se cargarán aquí -->
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal="detalleSalidaModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para importar Excel -->
+
+
+    <div id="importarExcelModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Importar Ingresos desde Excel</h3>
+                <span class="close" data-modal="importarExcelModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="importStepUpload" style="display: block;">
+                    <p><strong>Seleccione el archivo Excel con los ingresos:</strong></p>
+                    <p class="help-text">El archivo debe contener columnas: Fecha, Hora, Tipo Vehiculo, Marca, Dominio,
+                        Conducido por, Domicilio, Acta, Inspector, Articulo, Ordenanza, Traslado movil, MOTOR</p>
+
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <label for="excelFileInput" class="btn btn-primary" style="cursor: pointer;">
+                            <i class="fas fa-file-upload"></i> Seleccionar Archivo Excel
+                        </label>
+                        <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;">
+                    </div>
+
+                    <div id="selectedFileName" style="margin-top: 1rem; color: var(--success);"></div>
+                </div>
+
+                <div id="importStepProgress" style="display: none;">
+                    <h4>Importando datos...</h4>
+                    <div
+                        style="background: #f0f0f0; border-radius: 10px; height: 30px; overflow: hidden; margin: 1rem 0;">
+                        <div id="importProgressBar"
+                            style="background: var(--primary); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                    <p id="importProgressText">Preparando importación...</p>
+                </div>
+
+                <div id="importStepResults" style="display: none;">
+                    <h4>Resultado de la Importación</h4>
+                    <div id="importResultsSummary" class="stats-grid" style="margin: 1rem 0;"></div>
+                    <div id="importResultsDetails" style="max-height: 300px; overflow-y: auto; margin-top: 1rem;"></div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal="importarExcelModal">Cerrar</button>
+                <button type="button" id="ejecutarImportBtn" class="btn btn-success" style="display: none;">
+                    <i class="fas fa-check"></i> Confirmar Importación
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver historial -->
+    <div id="historialModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h3 id="historialModalTitle">Historial de Acciones</h3>
+                <span class="close" data-modal="historialModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="filters-container" style="margin-bottom: 1.5rem;">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="historialFilterAccion">Acción:</label>
+                            <select id="historialFilterAccion">
+                                <option value="">Todas</option>
+                                <option value="crear">Crear</option>
+                                <option value="modificar">Modificar</option>
+                                <option value="eliminar">Eliminar</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="historialFilterFechaDesde">Desde:</label>
+                            <input type="date" id="historialFilterFechaDesde">
+                        </div>
+                        <div class="filter-group">
+                            <label for="historialFilterFechaHasta">Hasta:</label>
+                            <input type="date" id="historialFilterFechaHasta">
+                        </div>
+                        <button id="filtrarHistorialBtn" class="btn btn-primary">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+
+                <div id="historialContent" style="max-height: 500px; overflow-y: auto;">
+                    <!-- El historial se cargará aquí en formato timeline -->
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" data-modal="historialModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
