@@ -88,6 +88,31 @@ class SistemaTransito {
         // Salidas de Vehículos
         document.getElementById('nuevaSalidaBtn').addEventListener('click', () => this.showSalidaModal());
         document.getElementById('salidaForm').addEventListener('submit', (e) => this.handleSalidaSubmit(e));
+
+        // Validación adicional: escuchar click en el botón de submit para mostrar mensajes de validación
+        const salidaSubmitBtn = document.querySelector('#salidaForm button[type="submit"]');
+        if (salidaSubmitBtn) {
+            salidaSubmitBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const form = document.getElementById('salidaForm');
+                // Forzar validación nativa y mostrar mensajes
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    const alerta = document.getElementById('salidaAlert');
+                    if (alerta) {
+                        alerta.textContent = 'Complete los campos requeridos';
+                        alerta.style.display = 'block';
+                        setTimeout(() => { alerta.style.display = 'none'; }, 4000);
+                    } else {
+                        this.showMessage('Complete los campos requeridos', 'error');
+                    }
+                    return;
+                }
+                // Si es válido, llamar al handler de submit (simulando el evento)
+                this.handleSalidaSubmit({ preventDefault: () => {}, target: form });
+            });
+        }
+
         document.getElementById('buscarSalidasBtn').addEventListener('click', () => this.buscarSalidas());
         document.getElementById('limpiarFiltrosSalidasBtn').addEventListener('click', () => this.limpiarFiltrosSalidas());
 
@@ -1115,7 +1140,7 @@ class SistemaTransito {
         document.getElementById('carnet_conducir').value = propietario.carnet_conducir || '';
         document.getElementById('direccion').value = propietario.direccion || '';
         document.getElementById('telefono').value = propietario.telefono || '';
-        document.getElementById('email').value = propietario.email || '';
+        document.getElementById('propietario_email').value = propietario.email || '';
         document.getElementById('fecha_nacimiento').value = propietario.fecha_nacimiento || '';
 
         document.getElementById('propietarioForm').dataset.editingId = propietario.id;
@@ -1923,6 +1948,12 @@ class SistemaTransito {
             return;
         }
 
+        // Validar orden de fechas
+        if (new Date(fechaDesde) > new Date(fechaHasta)) {
+            this.showMessage('La fecha "Desde" no puede ser mayor a "Hasta"', 'error');
+            return;
+        }
+
         try {
             console.log('📊 Generando reporte por fecha:', { fechaDesde, fechaHasta, agrupacion });
             const resultado = document.getElementById('resultadoReporteFecha');
@@ -1936,7 +1967,13 @@ class SistemaTransito {
 
             const data = await this.apiCall(`/reportes/infracciones-fecha?${params}`);
 
-            if (data.data.resumen.length === 0) {
+            console.log('📊 Datos recibidos del reporte por fecha:', data);
+
+            const resumen = data.data.resumen || [];
+            const detalles = data.data.detalles || [];
+            const totalGeneral = data.data.totalGeneral || 0;
+
+            if (resumen.length === 0 && detalles.length === 0) {
                 resultado.innerHTML = `
                 <div class="sin-resultados">
                     <i class="fas fa-chart-bar"></i>
@@ -1945,9 +1982,6 @@ class SistemaTransito {
             `;
                 return;
             }
-
-            const totalGeneral = data.data.totalGeneral;
-            const resumen = data.data.resumen;
 
             let tablaHTML = `
             <div style="margin-bottom: 1rem; padding: 1rem; background: var(--success); color: white; border-radius: 6px;">
@@ -2644,14 +2678,14 @@ class SistemaTransito {
             this.mostrarModal('usuarioModal');
             document.getElementById('modalUsuarioTitle').textContent = `Editar Usuario: ${usuario.username}`;
 
-            document.getElementById('username').value = usuario.username;
+            document.getElementById('usuario_username').value = usuario.username;
             document.getElementById('nombre_completo').value = usuario.nombre_completo;
-            document.getElementById('email').value = usuario.email || '';
+            document.getElementById('usuario_email').value = usuario.email || '';
             document.getElementById('rol').value = usuario.rol;
             document.getElementById('activo').value = usuario.activo ? 'true' : 'false';
 
             // Ocultar campo de contraseña en edición
-            document.getElementById('password').closest('.form-group').style.display = 'none';
+            document.getElementById('usuario_password').closest('.form-group').style.display = 'none';
 
             document.getElementById('usuarioForm').dataset.editingId = usuario.id;
 
@@ -2950,7 +2984,22 @@ class SistemaTransito {
         try {
             const data = await this.apiCall('/vehiculos');
             const select = document.getElementById('salida_vehiculo_id');
+            const submitBtn = document.querySelector('#salidaForm button[type="submit"]');
+
             select.innerHTML = '<option value="">Seleccionar vehículo...</option>';
+
+            const alerta = document.getElementById('salidaAlert');
+            if (!data || !data.data || data.data.length === 0) {
+                select.innerHTML = '<option value="">No hay vehículos registrados</option>';
+                if (submitBtn) submitBtn.disabled = true;
+                if (alerta) {
+                    alerta.textContent = 'No hay vehículos registrados. Registre un vehículo antes de registrar una salida.';
+                    alerta.style.display = 'block';
+                }
+                return;
+            }
+
+            if (alerta) { alerta.style.display = 'none'; }
 
             data.data.forEach(v => {
                 const option = document.createElement('option');
@@ -2959,8 +3008,14 @@ class SistemaTransito {
                 option.textContent = `${v.patente} - ${v.marca || ''} ${v.modelo || ''}`;
                 select.appendChild(option);
             });
+
+            if (submitBtn) submitBtn.disabled = false;
         } catch (error) {
             console.error('Error cargando vehículos:', error);
+            const select = document.getElementById('salida_vehiculo_id');
+            select.innerHTML = '<option value="">Error al cargar vehículos</option>';
+            const submitBtn = document.querySelector('#salidaForm button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
         }
     }
 
@@ -2988,41 +3043,75 @@ class SistemaTransito {
         const vehiculoSelect = document.getElementById('salida_vehiculo_id');
         const selectedOption = vehiculoSelect.options[vehiculoSelect.selectedIndex];
 
-        if (!selectedOption || !selectedOption.dataset.patente) {
-            this.showMessage('Por favor seleccione un vehículo válido', 'error');
-            const vehiculoPatente = vehiculoSelect.options[vehiculoSelect.selectedIndex].text.split(' - ')[0];
+        const vehiculo_id = formData.get('vehiculo_id');
+        const personaNombre = (formData.get('persona_retira_nombre') || '').trim();
+        const personaDNI = (formData.get('persona_retira_dni') || '').trim();
 
-            const salidaData = {
-                vehiculo_id: formData.get('salida_vehiculo_id'),
-                infraccion_id: formData.get('salida_infraccion_id') || null,
-                persona_retira_nombre: formData.get('salida_persona_retira_nombre'),
-                persona_retira_dni: formData.get('salida_persona_retira_dni'),
-                persona_retira_telefono: formData.get('salida_persona_retira_telefono'),
-                fecha_salida: formData.get('salida_fecha_salida'),
-                observaciones: formData.get('salida_observaciones'),
-                vehiculo_patente: vehiculoPatente
-            };
-
-            console.log('📝 Datos de salida:', salidaData);
-
-            try {
-                const editingId = document.getElementById('salidaForm').dataset.editingId;
-
-                if (editingId) {
-                    await this.apiCall(`/salidas/${editingId}`, 'PUT', salidaData);
-                    this.showMessage('Salida actualizada exitosamente', 'success');
-                } else {
-                    await this.apiCall('/salidas', 'POST', salidaData);
-                    this.showMessage('Salida registrada exitosamente', 'success');
-                }
-
-                this.ocultarModal('salidaModal');
-                this.loadSalidas();
-            } catch (error) {
-                console.error('❌ Error registrando salida:', error);
-                this.showMessage(error.message || 'Error al registrar salida', 'error');
+        // Validaciones del cliente antes de enviar
+        if (!vehiculo_id) {
+            const alerta = document.getElementById('salidaAlert');
+            if (alerta) {
+                alerta.textContent = 'Seleccione un vehículo válido';
+                alerta.style.display = 'block';
+                setTimeout(() => { alerta.style.display = 'none'; }, 4000);
+            } else {
+                this.showMessage('Seleccione un vehículo válido', 'error');
             }
+            return;
         }
+
+        if (!personaNombre || !personaDNI) {
+            const alerta = document.getElementById('salidaAlert');
+            if (alerta) {
+                alerta.textContent = 'Ingrese el nombre y DNI de quien retira';
+                alerta.style.display = 'block';
+                setTimeout(() => { alerta.style.display = 'none'; }, 4000);
+            } else {
+                this.showMessage('Ingrese el nombre y DNI de quien retira', 'error');
+            }
+            return;
+        }
+
+        // Obtener patente (preferir dataset, si no, extraer del texto)
+        let vehiculoPatente = '';
+        if (selectedOption && selectedOption.dataset && selectedOption.dataset.patente) {
+            vehiculoPatente = selectedOption.dataset.patente;
+        } else if (selectedOption) {
+            vehiculoPatente = selectedOption.text.split(' - ')[0];
+        }
+
+        const salidaData = {
+            vehiculo_id: vehiculo_id,
+            infraccion_id: formData.get('infraccion_id') || null,
+            persona_retira_nombre: personaNombre,
+            persona_retira_dni: personaDNI,
+            persona_retira_telefono: formData.get('persona_retira_telefono'),
+            fecha_salida: formData.get('fecha_salida'),
+            observaciones: formData.get('observaciones'),
+            vehiculo_patente: vehiculoPatente
+        };
+
+        console.log('📝 Datos de salida (validados):', salidaData);
+
+        try {
+            const editingId = document.getElementById('salidaForm').dataset.editingId;
+
+            if (editingId) {
+                await this.apiCall(`/salidas/${editingId}`, 'PUT', salidaData);
+                this.showMessage('Salida actualizada exitosamente', 'success');
+            } else {
+                await this.apiCall('/salidas', 'POST', salidaData);
+                this.showMessage('Salida registrada exitosamente', 'success');
+            }
+
+            this.ocultarModal('salidaModal');
+            this.loadSalidas();
+        } catch (error) {
+            console.error('❌ Error registrando salida:', error);
+            // Mostrar mensaje más claro al usuario
+            this.showMessage(error.message || 'Error al registrar salida', 'error');
+        }
+    }
 
     async buscarSalidas() {
             const patente = document.getElementById('filterSalidaPatente').value.trim();

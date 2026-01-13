@@ -51,18 +51,23 @@ const getReporteInfraccionesPorFecha = async (req, res) => {
 
         const [reporte] = await pool.execute(query, params);
 
-        // Obtener detalles adicionales para el período más reciente
+        // Obtener detalles adicionales para el período solicitado (usar BETWEEN si se proporcionan ambas fechas)
         let detallesRecientes = [];
         if (reporte.length > 0) {
+            const desde = fecha_desde || new Date().toISOString().split('T')[0];
+            const hasta = fecha_hasta || new Date().toISOString().split('T')[0];
+
+            console.log('🔎 Obteniendo detalles entre:', desde, 'y', hasta);
+
             const [detalles] = await pool.execute(`
                 SELECT i.*, v.patente, v.marca, v.modelo, u.nombre_completo as agente
                 FROM infracciones i
                 LEFT JOIN vehiculos v ON i.vehiculo_id = v.id
                 LEFT JOIN usuarios u ON i.usuario_id = u.id
-                WHERE DATE(i.fecha_infraccion) >= ?
+                WHERE DATE(i.fecha_infraccion) BETWEEN ? AND ?
                 ORDER BY i.fecha_infraccion DESC
                 LIMIT 10
-            `, [fecha_desde || new Date().toISOString().split('T')[0]]);
+            `, [desde, hasta]);
 
             detallesRecientes = detalles;
         }

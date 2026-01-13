@@ -374,14 +374,14 @@ const getEstadisticasInfracciones = async (req, res) => {
 
         console.log('📈 Estadísticas obtenidas:', estadisticas[0]);
 
-        // Estadísticas por mes
+        // Estadísticas por mes (SQLite-compatible)
         const [estadisticasMensuales] = await pool.execute(`
             SELECT 
-                DATE_FORMAT(fecha_infraccion, '%Y-%m') as mes,
+                strftime('%Y-%m', fecha_infraccion) as mes,
                 COUNT(*) as cantidad
             FROM infracciones 
-            WHERE fecha_infraccion >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-            GROUP BY DATE_FORMAT(fecha_infraccion, '%Y-%m')
+            WHERE fecha_infraccion >= date('now', '-6 months')
+            GROUP BY strftime('%Y-%m', fecha_infraccion)
             ORDER BY mes DESC
         `);
 

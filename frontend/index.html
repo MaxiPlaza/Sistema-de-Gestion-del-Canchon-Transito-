@@ -968,8 +968,8 @@
                         <input type="tel" id="telefono" name="telefono" placeholder="Ej: 11-1234-5678">
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" placeholder="ejemplo@correo.com">
+                        <label for="propietario_email">Email</label>
+                        <input type="email" id="propietario_email" name="email" placeholder="ejemplo@correo.com">
                     </div>
                 </div>
 
@@ -1129,13 +1129,13 @@
             <form id="usuarioForm" class="modal-form">
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="username">Username *</label>
-                        <input type="text" id="username" name="username" required>
+                        <label for="usuario_username">Username *</label>
+                        <input type="text" id="usuario_username" name="username" required>
                         <small class="help-text">Nombre de usuario para login</small>
                     </div>
                     <div class="form-group">
-                        <label for="password">Contraseña *</label>
-                        <input type="password" id="password" name="password" required>
+                        <label for="usuario_password">Contraseña *</label>
+                        <input type="password" id="usuario_password" name="password" required>
                         <small class="help-text">Mínimo 6 caracteres</small>
                     </div>
                 </div>
@@ -1146,8 +1146,8 @@
                         <input type="text" id="nombre_completo" name="nombre_completo" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email">
+                        <label for="usuario_email">Email</label>
+                        <input type="email" id="usuario_email" name="email">
                     </div>
                 </div>
 
@@ -1211,6 +1211,7 @@
                 <span class="close" data-modal="salidaModal">&times;</span>
             </div>
             <form id="salidaForm" class="modal-form">
+                <div id="salidaAlert" class="form-alert" style="display:none; color: var(--danger); margin-bottom: 0.5rem;"></div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="salida_vehiculo_id">Vehículo (Patente) *</label>
